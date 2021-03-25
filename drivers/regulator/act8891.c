@@ -34,6 +34,7 @@ REVISION 0.01
 #include <mach/gpio.h>
 #include <linux/delay.h>
 #include <mach/iomux.h>
+#include <linux/slab.h>
 
 #if 0
 #define DBG(x...)	printk(KERN_INFO x)
