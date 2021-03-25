@@ -19,7 +19,7 @@ EXTRA_CFLAGS += -Wno-unused
 
 EXTRA_CFLAGS += -Wno-uninitialized
 
-EXTRA_CFLAGS += -I$(src)/include
+EXTRA_CFLAGS += -I$(src)/include -Idrivers/net/wireless/rtl8192c/include
 
 CONFIG_AUTOCFG_CP = n
 
@@ -138,6 +138,8 @@ EXTRA_CFLAGS += -DCONFIG_MINIMAL_MEMORY_USAGE
 
 ifneq ($(KERNELRELEASE),)
 
+
+ccflags-y +=  	-Idrivers/net/wireless/rtl8192c/include
 
 rtk_core :=	core/rtw_cmd.o \
 		core/rtw_security.o \

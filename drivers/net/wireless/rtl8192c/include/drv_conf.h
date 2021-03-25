@@ -27,6 +27,8 @@
 
 #endif
 
+#define CONFIG_LITTLE_ENDIAN
+
 //Older Android kernel doesn't has CONFIG_ANDROID defined,
 //add this to force CONFIG_ANDROID defined
 #ifdef CONFIG_PLATFORM_ANDROID
@@ -64,6 +66,7 @@
 
 
 //#include <rtl871x_byteorder.h>
+#include <rtw_byteorder.h>
 
 #endif // __DRV_CONF_H__
 
