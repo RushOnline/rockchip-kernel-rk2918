@@ -1344,7 +1344,7 @@ static int rk29_nand_probe(struct platform_device *pdev)
     }  
    
 	/* Scan to find existence of the device */
-#if 0
+#if 1
 	   if (nand_scan(mtd, 8)) {     // rk29 nandc support max 8 cs
 #else
 	   if (nand_scan(mtd, 1)) {      // test for fpga board nand
