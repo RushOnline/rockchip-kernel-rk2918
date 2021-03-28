@@ -34,6 +34,8 @@
 #include <mach/rk29_iomap.h>
 #include <mach/iomux.h>
 
+#include "../mtdcore.h"
+
 #define PROGRAM_BUSY_COUNT   10000
 #define ERASE_BUSY_COUNT	    20000
 #define READ_BUSY_COUNT   	    5000
