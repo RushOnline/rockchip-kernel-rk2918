@@ -23,6 +23,11 @@
 #include "api_flash.h"
 #include <linux/clk.h>
 #include <linux/cpufreq.h>
+#include <linux/dma-mapping.h>
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 0, 0))
+#define add_mtd_partitions mtd_device_register
+#endif
 
 extern int rknand_queue_read(int Index, int nSec, void *buf);
 extern int rknand_queue_write(int Index, int nSec, void *buf,int mode);
@@ -39,7 +44,7 @@ const char rknand_base_version[] = "rknand_base.c version: 4.23 20110516";
 //#define PAGE_REMAP
 
 #ifndef CONFIG_RKFTL_PAGECACHE_SIZE
-#define CONFIG_RKFTL_PAGECACHE_SIZE  64 //¶¨ÒåpageÓ³ÉäÇø´óÐ¡£¬µ¥Î»ÎªMB,mount ÔÚ/data/dataÏÂ¡£
+#define CONFIG_RKFTL_PAGECACHE_SIZE  64 //ï¿½ï¿½ï¿½ï¿½pageÓ³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½Î»ÎªMB,mount ï¿½ï¿½/data/dataï¿½Â¡ï¿½
 #endif
 
 unsigned long SysImageWriteEndAdd = 0;
@@ -567,9 +572,9 @@ static int rk28xxnand_init(struct rknand_info *nand_info)
 
 
 /*
- * CMY: Ôö¼ÓÁË¶ÔÃüÁîÐÐ·ÖÇøÐÅÏ¢µÄÖ§³Ö
- *		ÈôcmdlineÓÐÌá¹©·ÖÇøÐÅÏ¢£¬ÔòÊ¹ÓÃcmdlineµÄ·ÖÇøÐÅÏ¢½øÐÐ·ÖÇø
- *		ÈôcmdlineÃ»ÓÐÌá¹©·ÖÇøÐÅÏ¢£¬ÔòÊ¹ÓÃÄ¬ÈÏµÄ·ÖÇøÐÅÏ¢(rk28_partition_info)½øÐÐ·ÖÇø
+ * CMY: ï¿½ï¿½ï¿½ï¿½ï¿½Ë¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð·ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½Ö§ï¿½ï¿½
+ *		ï¿½ï¿½cmdlineï¿½ï¿½ï¿½á¹©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½cmdlineï¿½Ä·ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½Ð·ï¿½ï¿½ï¿½
+ *		ï¿½ï¿½cmdlineÃ»ï¿½ï¿½ï¿½á¹©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½Ä¬ï¿½ÏµÄ·ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢(rk28_partition_info)ï¿½ï¿½ï¿½Ð·ï¿½ï¿½ï¿½
  */
 
 #ifdef CONFIG_MTD_CMDLINE_PARTS
@@ -581,7 +586,7 @@ static int rk28xxnand_add_partitions(struct rknand_info *nand_info)
 #ifdef CONFIG_MTD_CMDLINE_PARTS
     int num_partitions = 0; 
 
-	// ´ÓÃüÁîÐÐ½âÎö·ÖÇøµÄÐÅÏ¢
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
     num_partitions = parse_mtd_partitions(&(nand_info->mtd), part_probes, &nand_info->parts, 0); 
     printk("num_partitions = %d\n",num_partitions);
     if(num_partitions > 0) { 
@@ -598,7 +603,7 @@ static int rk28xxnand_add_partitions(struct rknand_info *nand_info)
 		return add_mtd_partitions(&nand_info->mtd, nand_info->parts, num_partitions);
     } 
 #endif 
-	// Èç¹ûÃüÁîÐÐÃ»ÓÐÌá¹©·ÖÇøÐÅÏ¢£¬ÔòÊ¹ÓÃÄ¬ÈÏµÄ·ÖÇøÐÅÏ¢
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½á¹©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½Ä¬ï¿½ÏµÄ·ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
 	printk("parse_mtd_partitions\n");
 
 //	rk28_partition_info[1].size = nand_info->mtd.size - ((ROOTFS_PART_SIZE + PARA_PART_SIZE + KERNEL_PART_SIZE)*0x100000);
@@ -777,9 +782,46 @@ static void __exit rknand_exit(void)
 module_init(rknand_init);
 module_exit(rknand_exit);
 
+extern void ___dma_single_cpu_to_dev(const void *kaddr, size_t size, enum dma_data_direction dir);
+
+void dma_cache_maint(const void *start, size_t size, int direction)
+{
+	 ___dma_single_cpu_to_dev(start, size, direction);
+}
+EXPORT_SYMBOL(dma_cache_maint);
+
+/**
+ * kthread_create - create a kthread.
+ * @threadfn: the function to run until signal_pending(current).
+ * @data: data ptr for @threadfn.
+ * @namefmt: printf-style name for the thread.
+ *
+ * Description: This helper function creates and names a kernel
+ * thread.  The thread will be stopped: use wake_up_process() to start
+ * it.  See also kthread_run(), kthread_create_on_cpu().
+ *
+ * When woken, the thread will run @threadfn() with @data as its
+ * argument. @threadfn() can either call do_exit() directly if it is a
+ * standalone thread for which noone will call kthread_stop(), or
+ * return when 'kthread_should_stop()' is true (which means
+ * kthread_stop() has been called).  The return value should be zero
+ * or a negative error number; it will be passed to kthread_stop().
+ *
+ * Returns a task_struct or ERR_PTR(-ENOMEM).
+ */
+# undef kthread_create
+struct task_struct *kthread_create(int (*threadfn)(void *data),
+				   void *data,
+				   const char namefmt[],
+				   ...)
+{
+	return kthread_create_on_node(threadfn, data, -1, "rk29xx_nand_thread");
+}
+EXPORT_SYMBOL(kthread_create);
+
 #if 0//def CONFIG_rknand
 /*
-×¢²áÒ»¸ösys dev £¬ÔÚ¹Ø»úºÍ¸´Î»Ê±»Øµ÷£¬°Ñflash¹Ø¼üÐÅÏ¢Ð´µ½nand flashÖÐ£¬ÏÂ´Î¿ª»úÊ±¿ÉÒÔ¿ìËÙ¿ª»ú¡£
+×¢ï¿½ï¿½Ò»ï¿½ï¿½sys dev ï¿½ï¿½ï¿½Ú¹Ø»ï¿½ï¿½Í¸ï¿½Î»Ê±ï¿½Øµï¿½ï¿½ï¿½ï¿½ï¿½flashï¿½Ø¼ï¿½ï¿½ï¿½Ï¢Ð´ï¿½ï¿½nand flashï¿½Ð£ï¿½ï¿½Â´Î¿ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ô¿ï¿½ï¿½Ù¿ï¿½ï¿½ï¿½ï¿½ï¿½
 */
 
 #include <linux/sysdev.h>
